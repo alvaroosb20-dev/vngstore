@@ -1,6 +1,8 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 import type { Category, Product, Review } from "@/lib/types";
+import { isPreview } from "@/lib/config";
+import { demoCategories, demoProducts } from "@/lib/demo";
 
 const PRODUCT_FIELDS =
   "*, categories(id, slug, name), product_images(*), product_variants(*)";
@@ -20,6 +22,7 @@ export function isPurchasable(p: Product) {
 }
 
 export async function getCategories(): Promise<Category[]> {
+  if (isPreview()) return demoCategories;
   const supabase = await createClient();
   const { data } = await supabase.from("categories").select("*").order("position");
   return (data ?? []) as Category[];
@@ -36,6 +39,15 @@ export interface CatalogFilters {
 }
 
 export async function getProducts(f: CatalogFilters = {}, limit = 60): Promise<Product[]> {
+  if (isPreview()) {
+    const q = f.q?.toLowerCase();
+    const cat = demoCategories.find((c) => c.slug === f.category);
+    if (f.category && !cat) return [];
+    if (f.onSale) return [];
+    return demoProducts
+      .filter((p) => (!cat || p.category_id === cat.id) && (!q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q)))
+      .slice(0, limit);
+  }
   const supabase = await createClient();
   let query = supabase.from("products").select(PRODUCT_FIELDS).eq("status", "active");
 
@@ -77,6 +89,7 @@ export async function getProducts(f: CatalogFilters = {}, limit = 60): Promise<P
 }
 
 export async function getFeatured(limit = 8) {
+  if (isPreview()) return demoProducts.slice(0, limit);
   const supabase = await createClient();
   const { data } = await supabase
     .from("products")
@@ -89,6 +102,7 @@ export async function getFeatured(limit = 8) {
 }
 
 export async function getNewArrivals(limit = 8) {
+  if (isPreview()) return demoProducts.slice(0, limit);
   const supabase = await createClient();
   const { data } = await supabase
     .from("products")
@@ -106,12 +120,14 @@ export async function getOnSale(limit = 8) {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
+  if (isPreview()) return demoProducts.find((p) => p.slug === slug) ?? null;
   const supabase = await createClient();
   const { data } = await supabase.from("products").select(PRODUCT_FIELDS).eq("slug", slug).eq("status", "active").maybeSingle();
   return data ? sortChildren(data as Product) : null;
 }
 
 export async function getRelated(p: Product, limit = 4) {
+  if (isPreview()) return demoProducts.filter((x) => x.id !== p.id).slice(0, limit);
   if (!p.category_id) return [];
   const supabase = await createClient();
   const { data } = await supabase
@@ -125,6 +141,7 @@ export async function getRelated(p: Product, limit = 4) {
 }
 
 export async function getProductReviews(productId: string): Promise<Review[]> {
+  if (isPreview()) return [];
   const supabase = await createClient();
   const { data } = await supabase
     .from("reviews")
@@ -137,6 +154,7 @@ export async function getProductReviews(productId: string): Promise<Review[]> {
 }
 
 export async function getLatestReviews(limit = 6): Promise<Review[]> {
+  if (isPreview()) return [];
   const supabase = await createClient();
   const { data } = await supabase
     .from("reviews")

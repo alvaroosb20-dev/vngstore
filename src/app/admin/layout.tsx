@@ -3,14 +3,14 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { signOut } from "@/app/actions/auth";
 import { AdminNav } from "./AdminNav";
-import { missingEnv } from "@/lib/config";
+import { missingSupabaseEnv } from "@/lib/config";
 import { SetupNotice } from "@/components/SetupNotice";
 
 export const metadata: Metadata = { title: { default: "Admin", template: "%s · Admin VNG" }, robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const missing = missingEnv();
+  const missing = missingSupabaseEnv();
   if (missing.length) return <SetupNotice missing={missing} />;
   const profile = await requireAdmin();
   return (

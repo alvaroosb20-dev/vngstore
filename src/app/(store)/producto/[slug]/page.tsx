@@ -10,7 +10,7 @@ import { ReturnIcon, ShieldIcon, TruckIcon } from "@/components/icons";
 import { getProductBySlug, getProductReviews, getRelated, totalStock } from "@/lib/catalog";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/format";
-import { site } from "@/lib/config";
+import { isPreview, site } from "@/lib/config";
 
 type Params = Promise<{ slug: string }>;
 
@@ -35,12 +35,10 @@ export default async function ProductPage({ params }: { params: Params }) {
   const [reviews, related] = await Promise.all([getProductReviews(product.id), getRelated(product)]);
 
   // ¿Puede el usuario valorar? (ha comprado y aún no ha valorado)
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
   let canReview = false;
-  if (user) {
+  const supabase = isPreview() ? null : await createClient();
+  const user = supabase ? (await supabase.auth.getUser()).data.user : null;
+  if (supabase && user) {
     const [{ data: bought }, { data: existing }] = await Promise.all([
       supabase
         .from("order_items")

@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { isPreview } from "@/lib/config";
 import { createAdminClient } from "@/lib/supabase/server";
 
 export type NewsletterState = { ok: boolean; message: string } | null;
@@ -11,6 +12,7 @@ const schema = z.object({
 });
 
 export async function subscribeNewsletter(_: NewsletterState, formData: FormData): Promise<NewsletterState> {
+  if (isPreview()) return { ok: false, message: "La newsletter estará disponible muy pronto." };
   // Campo trampa anti-bots
   if (formData.get("company")) return { ok: true, message: "¡Gracias por suscribirte!" };
 

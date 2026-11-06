@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/server";
 import { variantLabel } from "@/lib/format";
 import type { Coupon, Settings } from "@/lib/types";
+import { isPreview } from "@/lib/config";
 
 export const cartInputSchema = z.object({
   items: z
@@ -38,6 +39,7 @@ export interface Quote {
 }
 
 export async function getSettings(): Promise<Settings> {
+  if (isPreview()) return { shipping_cents: 0, free_shipping_threshold_cents: null };
   const db = createAdminClient();
   const { data } = await db.from("settings").select("shipping_cents, free_shipping_threshold_cents").eq("id", 1).single();
   return { shipping_cents: data?.shipping_cents ?? 0, free_shipping_threshold_cents: data?.free_shipping_threshold_cents ?? null };
@@ -57,6 +59,9 @@ export function couponDiscount(coupon: Coupon, subtotalCents: number): { discoun
 
 /** Recalcula el carrito con los precios y el stock reales de la base de datos. Nunca confía en el navegador. */
 export async function quoteCart(input: CartInput): Promise<Quote> {
+  if (isPreview()) {
+    return { lines: [], subtotalCents: 0, discountCents: 0, shippingCents: 0, totalCents: 0, coupon: null, couponError: null, freeShippingThresholdCents: null, errors: ["La tienda está en modo vista previa: aún no se pueden hacer pedidos."] };
+  }
   const db = createAdminClient();
   const ids = Array.from(new Set(input.items.map((i) => i.variantId)));
 

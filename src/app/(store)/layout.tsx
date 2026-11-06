@@ -4,18 +4,20 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { CookieBanner } from "@/components/CookieBanner";
 import { getCategories } from "@/lib/catalog";
 import { getProfile } from "@/lib/auth";
-import { missingEnv } from "@/lib/config";
-import { SetupNotice } from "@/components/SetupNotice";
+import { isPreview } from "@/lib/config";
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
-  const missing = missingEnv();
-  if (missing.length) return <SetupNotice missing={missing} />;
   const [categories, profile] = await Promise.all([getCategories(), getProfile()]);
   return (
     <>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-espresso focus:px-4 focus:py-2 focus:text-cream-50">
         Saltar al contenido
       </a>
+      {isPreview() && (
+        <div className="bg-copper px-4 py-2 text-center text-xs text-white">
+          Vista previa · Catálogo de ejemplo sin base de datos. Aún no se pueden hacer pedidos.
+        </div>
+      )}
       <Header
         categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
         loggedIn={!!profile}

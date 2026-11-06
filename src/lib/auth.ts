@@ -1,8 +1,10 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isPreview } from "@/lib/config";
 
 export async function getCurrentUser() {
+  if (isPreview()) return null;
   const supabase = await createClient();
   const {
     data: { user },
@@ -11,6 +13,7 @@ export async function getCurrentUser() {
 }
 
 export async function getProfile() {
+  if (isPreview()) return null;
   const supabase = await createClient();
   const {
     data: { user },

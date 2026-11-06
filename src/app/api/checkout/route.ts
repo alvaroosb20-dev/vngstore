@@ -3,9 +3,12 @@ import type Stripe from "stripe";
 import { cartInputSchema, quoteCart } from "@/lib/pricing";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe";
-import { site } from "@/lib/config";
+import { isPreview, paymentsEnabled, site } from "@/lib/config";
 
 export async function POST(req: Request) {
+  if (isPreview() || !paymentsEnabled()) {
+    return NextResponse.json({ error: "Los pagos aún no están activados en la tienda." }, { status: 503 });
+  }
   const body = await req.json().catch(() => null);
   const parsed = cartInputSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });

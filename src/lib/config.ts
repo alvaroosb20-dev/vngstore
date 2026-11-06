@@ -43,14 +43,25 @@ export function isPending(value: string) {
   return value.startsWith("PENDIENTE");
 }
 
-/** Variables de entorno obligatorias que faltan en el despliegue */
-export function missingEnv() {
+/**
+ * Modo vista previa: sin Supabase configurado, la tienda se muestra con el catálogo de ejemplo
+ * (los 3 productos de la colección, sin precio) y no permite comprar ni iniciar sesión.
+ */
+export function isPreview() {
+  return !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || !process.env.SUPABASE_SERVICE_ROLE_KEY;
+}
+
+/** Pagos activos solo cuando Stripe está configurado */
+export function paymentsEnabled() {
+  return !!process.env.STRIPE_SECRET_KEY;
+}
+
+/** Variables que necesita el panel de administración */
+export function missingSupabaseEnv() {
   const vars = {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
-    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
   };
   return Object.entries(vars).filter(([, v]) => !v).map(([k]) => k);
 }

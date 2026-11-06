@@ -40,13 +40,15 @@ export function ProductCard({ product, priority = false }: { product: Product; p
         <div className="absolute left-3 top-3 flex flex-col gap-1.5">
           {onSale && <span className="rounded-full bg-copper px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">-{pct}%</span>}
           {product.is_new && <span className="rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-espresso">Nuevo</span>}
-          {stock === 0 && <span className="rounded-full bg-espresso/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">Agotado</span>}
+          {stock === 0 && product.price_cents > 0 && <span className="rounded-full bg-espresso/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white">Agotado</span>}
         </div>
       </div>
       <div className="mt-4 space-y-1 px-0.5">
         <h3 className="text-[15px] text-espresso">{product.name}</h3>
         <div className="flex items-baseline gap-2">
-          <span className={`text-[15px] ${onSale ? "text-copper-600" : "text-espresso"}`}>{formatPrice(product.price_cents)}</span>
+          <span className={`text-[15px] ${onSale ? "text-copper-600" : "text-espresso"}`}>
+            {product.price_cents > 0 ? formatPrice(product.price_cents) : <span className="text-espresso-500">Próximamente</span>}
+          </span>
           {onSale && <span className="text-xs text-espresso-300 line-through">{formatPrice(product.compare_at_cents!)}</span>}
         </div>
         {product.rating_count > 0 && <Stars value={Number(product.rating_avg)} count={product.rating_count} />}

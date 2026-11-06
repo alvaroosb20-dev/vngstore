@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { claimGuestOrders } from "@/lib/orders";
-import { site } from "@/lib/config";
+import { isPreview, site } from "@/lib/config";
 
 export type FormState = { ok: boolean; message: string } | null;
 
@@ -29,6 +29,7 @@ const passwordSchema = z
   .regex(/[0-9]/, "La contraseña debe incluir algún número");
 
 export async function signIn(_: FormState, formData: FormData): Promise<FormState> {
+  if (isPreview()) return { ok: false, message: "Las cuentas estarán disponibles muy pronto." };
   const parsed = z
     .object({ email: z.string().trim().email("Email no válido"), password: z.string().min(1, "Introduce tu contraseña") })
     .safeParse({ email: formData.get("email"), password: formData.get("password") });
@@ -45,6 +46,7 @@ export async function signIn(_: FormState, formData: FormData): Promise<FormStat
 }
 
 export async function signUp(_: FormState, formData: FormData): Promise<FormState> {
+  if (isPreview()) return { ok: false, message: "Las cuentas estarán disponibles muy pronto." };
   const parsed = z
     .object({
       fullName: z.string().trim().min(2, "Introduce tu nombre").max(120),
@@ -83,6 +85,7 @@ export async function signUp(_: FormState, formData: FormData): Promise<FormStat
 }
 
 export async function requestPasswordReset(_: FormState, formData: FormData): Promise<FormState> {
+  if (isPreview()) return { ok: false, message: "Las cuentas estarán disponibles muy pronto." };
   const email = z.string().trim().email().safeParse(formData.get("email"));
   if (!email.success) return { ok: false, message: "Email no válido" };
   const supabase = await createClient();
