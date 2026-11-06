@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-cream-50 text-ink antialiased font-sans;
+  }
+  ::selection {
+    @apply bg-copper-100 text-espresso;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-copper ring-offset-2 ring-offset-cream-50;
+  }
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10;
+  }
+  .eyebrow {
+    @apply text-[11px] font-medium uppercase tracking-widest2 text-copper-600;
+  }
+  .h-display {
+    @apply font-serif text-espresso tracking-tight;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium tracking-wide transition duration-300 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-espresso text-cream-50 hover:bg-ink active:scale-[.98];
+  }
+  .btn-outline {
+    @apply btn border border-espresso/25 text-espresso hover:border-espresso hover:bg-espresso hover:text-cream-50;
+  }
+  .btn-ghost {
+    @apply btn px-3 text-espresso hover:bg-cream-200;
+  }
+  .btn-danger {
+    @apply btn bg-rose-700 text-white hover:bg-rose-800;
+  }
+  .input {
+    @apply w-full rounded-xl border border-espresso/15 bg-white px-4 py-3 text-[15px] text-ink placeholder:text-espresso-300 transition focus:border-espresso focus:outline-none focus:ring-0;
+  }
+  .label {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-wider text-espresso-500;
+  }
+  .card {
+    @apply rounded-2xl border border-espresso/10 bg-white;
+  }
+  .link-underline {
+    @apply relative after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-full after:origin-right after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:origin-left hover:after:scale-x-100;
+  }
+  .prose-legal h2 {
+    @apply mt-10 mb-3 font-serif text-2xl text-espresso;
+  }
+  .prose-legal h3 {
+    @apply mt-6 mb-2 font-medium text-espresso;
+  }
+  .prose-legal p,
+  .prose-legal li {
+    @apply leading-relaxed text-espresso-700;
+  }
+  .prose-legal p {
+    @apply mb-4;
+  }
+  .prose-legal ul {
+    @apply mb-4 list-disc space-y-1 pl-5;
+  }
+  .prose-legal a {
+    @apply text-copper-600 underline underline-offset-2;
+  }
+}
+
+/* Revelado al hacer scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
