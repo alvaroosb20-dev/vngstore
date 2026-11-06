@@ -4,8 +4,12 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { CookieBanner } from "@/components/CookieBanner";
 import { getCategories } from "@/lib/catalog";
 import { getProfile } from "@/lib/auth";
+import { missingEnv } from "@/lib/config";
+import { SetupNotice } from "@/components/SetupNotice";
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
+  const missing = missingEnv();
+  if (missing.length) return <SetupNotice missing={missing} />;
   const [categories, profile] = await Promise.all([getCategories(), getProfile()]);
   return (
     <>
